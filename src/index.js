@@ -1,7 +1,17 @@
 import triangles from './triangles';
+import { drawBoardOutline, drawTriangle } from './graphics';
+import { determineWinnings } from './logic';
 
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
+
+// vertical bounds are the same for all
+const upperBound = dividedHeight;
+const lowerBound = dividedHeight*3;
+
+// set global dimensioning
+const dividedWidth = canvas.width/7
+const dividedHeight = canvas.height/4
 
 const gameState = {
     dipSwitch : [0, 0, 0],
@@ -11,6 +21,7 @@ const gameState = {
     cash: 1000
 }
 
+// get handles on DOM elements and do bootstrapping
 const cashSpan = document.querySelector("#cash");
 
 cashSpan.innerHTML = gameState.cash;
@@ -24,22 +35,6 @@ resetButton.addEventListener('click', ()=> {
 })
 
 
-const dividedWidth = canvas.width/7
-const dividedHeight = canvas.height/4
-
-const drawBoardOutline = (dividedWidth, dividedHeight) => {
-    
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    for (let i=0; i<3; i++) {
-        
-        let x = dividedWidth + 2*i*dividedWidth;
-        let y = dividedHeight
-        
-        ctx.strokeRect(x, y, dividedWidth, dividedHeight*2)
-    }
-}
-
 const getMousePos = (evt) =>{
     const rect = canvas.getBoundingClientRect();
     return {
@@ -48,20 +43,14 @@ const getMousePos = (evt) =>{
     };
 }
 
+// all the main logic for the game resides around clicks inside the canvas element
 canvas.addEventListener('click', (event) => {
     
     const mousePos = getMousePos(event);
+    const index = Math.floor(Math.random()*triangles.length)
+
     
-    // vertical bounds are the same for all
-    const upperBound = dividedHeight;
-    
-    const lowerBound = dividedHeight*3;
-    
-    if (mousePos.y < upperBound || mousePos.y > lowerBound) {
-        console.log("none");
-    } else if ((mousePos.x > dividedWidth) && ( mousePos.x < dividedWidth*2) && !gameState.firstRect) {
-       
-       let index = Math.floor(Math.random()*triangles.length)
+    if ((mousePos.x > dividedWidth) && ( mousePos.x < dividedWidth*2) && !gameState.firstRect) {
        
        gameState.firstRect = index;
        gameState.dipSwitch[0] = 1;
@@ -71,11 +60,9 @@ canvas.addEventListener('click', (event) => {
            y: (dividedHeight + dividedHeight/2) + 50
        }
        
-       drawTriangle(triangles[index], origin)
+       drawTriangle(ctx, triangles[index], origin)
        
     } else if ((mousePos.x > dividedWidth*3) && ( mousePos.x < dividedWidth*4) && !gameState.secondRect) {
-        
-        let index = Math.floor(Math.random()*triangles.length)
         
         gameState.secondRect = index;
         gameState.dipSwitch[1] = 1;
@@ -85,12 +72,11 @@ canvas.addEventListener('click', (event) => {
            y: (dividedHeight + dividedHeight/2) + 50
         }
 
-       drawTriangle(triangles[index], origin)
+       drawTriangle(ctx, triangles[index], origin)
        
     } else if ((mousePos.x > dividedWidth*5) && ( mousePos.x < dividedWidth*6) && !gameState.thirdRect) {
-        let index = Math.floor(Math.random()*triangles.length)
-        
-        gameState.secondRect = index;
+
+        gameState.thirdRect = index;
         gameState.dipSwitch[2] = 1;
         
         let origin = {
@@ -98,11 +84,9 @@ canvas.addEventListener('click', (event) => {
             y: (dividedHeight + dividedHeight/2) + 50
         }
         
-        drawTriangle(triangles[index], origin)
+        drawTriangle(ctx, triangles[index], origin)
         
     }
-    
-    console.log(gameState.dipSwitch)
     
     if((gameState.dipSwitch[0] === 1) && (gameState.dipSwitch[1] === 1) && (gameState.dipSwitch[2] === 1)) {
         
@@ -131,46 +115,9 @@ const reset = () => {
     
     messageSpan.innerHTML = "";
     
-    drawBoardOutline(dividedWidth, dividedHeight);
+    drawBoardOutline(ctx, canvas, dividedWidth, dividedHeight);
 
 }
 
 
-const drawTriangle = (triangle, origin) => {
-    ctx.beginPath();
-    ctx.moveTo(triangle.A.x + origin.x, triangle.A.y + origin.y);
-    ctx.lineTo(triangle.B.x + origin.x, triangle.B.y + origin.y);
-    ctx.lineTo(triangle.C.x + origin.x, triangle.C.y + origin.y);
-    ctx.fill();
-}
-
-const determineWinnings = ({firstRect, secondRect, thirdRect}) => {
-    // all three rectangles are same
-    if ((firstRect === secondRect) && (secondRect === thirdRect)) {
-        return {
-            winnings: 5000,
-            message: "Jackpot!"
-        }
-    } else if ((firstRect === secondRect) ||
-                (firstRect === thirdRect) ||
-                (secondRect === thirdRect)) {
-        return {
-            winnings: 1000,
-            message: "Lucky pair!"
-        }    
-    } else if ((firstRect !== secondRect) && 
-                (firstRect !== thirdRect) &&
-                (secondRect !== thirdRect)){
-        return {
-            winnings: 500,
-            message: "Wild Three!"
-        }
-    } else {
-        return {
-            winnings: -200,
-            message: "LP - go drink a juicebox!"
-        }
-    }
-}
-
-drawBoardOutline(dividedWidth, dividedHeight);
+drawBoardOutline(ctx, canvas, dividedWidth, dividedHeight);
