@@ -17,11 +17,20 @@ cashSpan.innerHTML = gameState.cash;
 
 const messageSpan = document.querySelector('#message');
 
+const resetButton = document.querySelector('#reset')
+
+resetButton.addEventListener('click', ()=> {
+    reset();
+})
+
 
 const dividedWidth = canvas.width/7
 const dividedHeight = canvas.height/4
 
 const drawBoardOutline = (dividedWidth, dividedHeight) => {
+    
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
     for (let i=0; i<3; i++) {
         
         let x = dividedWidth + 2*i*dividedWidth;
@@ -97,7 +106,6 @@ canvas.addEventListener('click', (event) => {
     
     if((gameState.dipSwitch[0] === 1) && (gameState.dipSwitch[1] === 1) && (gameState.dipSwitch[2] === 1)) {
         
-        console.log("end condition")
         roundOver(determineWinnings(gameState));
     }
 
@@ -105,7 +113,6 @@ canvas.addEventListener('click', (event) => {
 
 const roundOver = (result) => {
     
-    alert("Got called");
     gameState.cash += result.winnings;
     
     cashSpan.innerHTML = "";
@@ -114,7 +121,17 @@ const roundOver = (result) => {
     messageSpan.innerHTML = "";
     messageSpan.innerHTML = result.message;
     
+}
+
+const reset = () => {
     gameState.dipSwitch = [0, 0, 0];
+    gameState.firstRect = null;
+    gameState.secondRect = null;
+    gameState.thirdRect = null;
+    
+    messageSpan.innerHTML = "";
+    
+    drawBoardOutline(dividedWidth, dividedHeight);
 
 }
 
