@@ -48,6 +48,11 @@ canvas.addEventListener('click', (event) => {
     
     const mousePos = getMousePos(event);
     const index = Math.floor(Math.random()*triangles.length)
+    
+    if((gameState.dipSwitch[0] === 1) && (gameState.dipSwitch[1] === 1) && (gameState.dipSwitch[2] === 1)) {
+        
+        roundOver(determineWinnings(gameState));
+    }
 
     
     if ((mousePos.x > dividedWidth) && ( mousePos.x < dividedWidth*2) && !gameState.firstRect) {

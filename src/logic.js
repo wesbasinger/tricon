@@ -12,19 +12,12 @@ const determineWinnings = ({firstRect, secondRect, thirdRect}) => {
                 (firstRect === thirdRect) ||
                 (secondRect === thirdRect)) {
         return {
-            winnings: 1000,
+            winnings: 400,
             message: "Lucky pair!"
         }    
-    } else if ((firstRect !== secondRect) && 
-                (firstRect !== thirdRect) &&
-                (secondRect !== thirdRect)){
-        return {
-            winnings: 500,
-            message: "Wild Three!"
-        }
     } else {
         return {
-            winnings: -200,
+            winnings: -600,
             message: "LP - go drink a juicebox!"
         }
     }
