@@ -3,12 +3,20 @@ import triangles from './triangles';
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
-
 const gameState = {
+    dipSwitch : [0, 0, 0],
     firstRect: null,
     secondRect: null,
-    thirdRect: null
+    thirdRect: null,
+    cash: 1000
 }
+
+const cashSpan = document.querySelector("#cash");
+
+cashSpan.innerHTML = gameState.cash;
+
+const messageSpan = document.querySelector('#message');
+
 
 const dividedWidth = canvas.width/7
 const dividedHeight = canvas.height/4
@@ -47,6 +55,7 @@ canvas.addEventListener('click', (event) => {
        let index = Math.floor(Math.random()*triangles.length)
        
        gameState.firstRect = index;
+       gameState.dipSwitch[0] = 1;
        
        let origin = {
            x: (dividedWidth + dividedWidth/2) - 50,
@@ -60,6 +69,7 @@ canvas.addEventListener('click', (event) => {
         let index = Math.floor(Math.random()*triangles.length)
         
         gameState.secondRect = index;
+        gameState.dipSwitch[1] = 1;
         
         let origin = {
            x: (dividedWidth*3 + dividedWidth/2) - 50,
@@ -72,6 +82,7 @@ canvas.addEventListener('click', (event) => {
         let index = Math.floor(Math.random()*triangles.length)
         
         gameState.secondRect = index;
+        gameState.dipSwitch[2] = 1;
         
         let origin = {
             x: (dividedWidth*5 + dividedWidth/2) - 50,
@@ -80,11 +91,32 @@ canvas.addEventListener('click', (event) => {
         
         drawTriangle(triangles[index], origin)
         
-    } else {
-        console.log("None");
+    }
+    
+    console.log(gameState.dipSwitch)
+    
+    if((gameState.dipSwitch[0] === 1) && (gameState.dipSwitch[1] === 1) && (gameState.dipSwitch[2] === 1)) {
+        
+        console.log("end condition")
+        roundOver(determineWinnings(gameState));
     }
 
 })
+
+const roundOver = (result) => {
+    
+    alert("Got called");
+    gameState.cash += result.winnings;
+    
+    cashSpan.innerHTML = "";
+    cashSpan.innerHTML = gameState.cash;
+    
+    messageSpan.innerHTML = "";
+    messageSpan.innerHTML = result.message;
+    
+    gameState.dipSwitch = [0, 0, 0];
+
+}
 
 
 const drawTriangle = (triangle, origin) => {
@@ -93,6 +125,35 @@ const drawTriangle = (triangle, origin) => {
     ctx.lineTo(triangle.B.x + origin.x, triangle.B.y + origin.y);
     ctx.lineTo(triangle.C.x + origin.x, triangle.C.y + origin.y);
     ctx.fill();
+}
+
+const determineWinnings = ({firstRect, secondRect, thirdRect}) => {
+    // all three rectangles are same
+    if ((firstRect === secondRect) && (secondRect === thirdRect)) {
+        return {
+            winnings: 5000,
+            message: "Jackpot!"
+        }
+    } else if ((firstRect === secondRect) ||
+                (firstRect === thirdRect) ||
+                (secondRect === thirdRect)) {
+        return {
+            winnings: 1000,
+            message: "Lucky pair!"
+        }    
+    } else if ((firstRect !== secondRect) && 
+                (firstRect !== thirdRect) &&
+                (secondRect !== thirdRect)){
+        return {
+            winnings: 500,
+            message: "Wild Three!"
+        }
+    } else {
+        return {
+            winnings: -200,
+            message: "LP - go drink a juicebox!"
+        }
+    }
 }
 
 drawBoardOutline(dividedWidth, dividedHeight);
